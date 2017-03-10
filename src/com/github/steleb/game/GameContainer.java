@@ -1,103 +1,123 @@
 package com.github.steleb.game;
 
+import com.github.steleb.engine.graphics.Renderer;
 import com.github.steleb.engine.graphics.Window;
-
-import java.awt.Graphics;
-import java.awt.Color;
-import java.awt.image.BufferStrategy;
 
 public class GameContainer implements Runnable
 {
-
+    private Thread thread;
     private Window window;
-    public int width, height;
-    public String title;
+    private Renderer renderer;
+    private int width = 1280, height = 720;
+    private float scale = 1f;
+    private String title = "Revolt-Engine v1.0";
+
 
     private boolean running = false;
-    private Thread thread;
+    private final double UPDATE_CAP = 1.0/60.0;
 
-    private BufferStrategy bs;
-    private Graphics g;
-
-    public GameContainer(String title, int width, int height)
-    {
-        this.width = width;
-        this.height = height;
-        this.title = title;
-    }
-
-    private void init()
-    {
-        window = new Window(title, width, height);
-    }
-
-    private void tick()
+    public GameContainer()
     {
 
     }
 
-    private void render()
+    public void start()
     {
-        bs = window.getCanvas().getBufferStrategy();
-        if(bs == null)
-        {
-            window.getCanvas().createBufferStrategy(3);
-            return;
-        }
-        g = bs.getDrawGraphics();
+        window = new Window(this);
+        renderer = new Renderer(this);
 
-        // Clear Screen
-        g.clearRect(0,0, width, height);
+        thread = new Thread(this);
+        thread.run();
+    }
 
-        // Draw start
+    public void stop()
+    {
 
-        // Draw end
-        bs.show();
-        g.dispose();
     }
 
     public void run()
     {
-        init();
+        running = true;
+
+        boolean render = false;
+        double firstTime = 0;
+        double lastTime = System.nanoTime() / 1.0e9; //Converts nanoTime into milliseconds
+        double passedTime = 0;
+        double unprocessedTime = 0;
+
+        double frameTime = 0;
+        int frames = 0;
+        int fps = 0;
 
         while(running)
         {
-            tick();
-            render();
+            render = false;
 
+            firstTime = System.nanoTime() / 1.0e9; //Converts nanoTime into milliseconds
+            passedTime = firstTime - lastTime;
+            lastTime = firstTime;
+
+            unprocessedTime += passedTime;
+            frameTime += passedTime;
+
+            while(unprocessedTime >= UPDATE_CAP)
+            {
+                unprocessedTime -= UPDATE_CAP;
+                render = true;
+                //TODO: Update game
+                if(frameTime >= 1.0)
+                {
+                    frameTime = 0;
+                    fps = frames;
+                    frames = 0;
+                    System.out.println("FPS: " + fps);
+                }
+            }
+
+            if(render)
+            {
+                renderer.clear();
+                //TODO: Render game
+                window.update();
+                frames ++;
+            }
+            else
+            {
+                try
+                {
+                    Thread.sleep(1);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
         }
-        stop();
+        dispose();
     }
 
-    public synchronized  void start()
+    private void dispose()
     {
-        if(running)
-        {
-            return;
-        }
 
-        running = true;
-        thread = new Thread(this);
-        thread.start();
     }
 
-    public synchronized void stop()
-    {
-        if(!running)
-        {
-            return;
-        }
-
-        running = false;
-
-        try
-        {
-            thread.join();
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
+    public int getWidth() {
+        return width;
     }
 
+    public int getHeight() {
+        return height;
+    }
+
+    public float getScale() {
+        return scale;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public Window getWindow() {
+        return window;
+    }
 }

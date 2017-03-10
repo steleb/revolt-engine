@@ -1,49 +1,55 @@
 package com.github.steleb.engine.graphics;
 
-import javax.swing.JFrame;
+import com.github.steleb.game.GameContainer;
+
+import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 
 
-public class Window {
-
+public class Window
+{
     private JFrame frame;
+    private BufferedImage image;
     private Canvas canvas;
+    private BufferStrategy bs;
+    private Graphics g;
 
-    private String title;
-    private int width;
-    private int height;
-
-
-    public Window(String title, int width, int height)
+    public Window(GameContainer gc)
     {
-       this.title = title;
-       this.width = width;
-       this.height = height;
+        image = new BufferedImage(gc.getWidth(), gc. getHeight(), BufferedImage.TYPE_INT_RGB);
+        canvas = new Canvas();
+        Dimension s = new Dimension((int)gc.getWidth() * (int)gc.getScale(), (int)gc.getHeight() * (int)gc.getScale());
+        canvas.setPreferredSize(s);
+        canvas.setMaximumSize(s);
+        canvas.setMinimumSize(s);
 
-       createWindow();
-    }
-
-    private void createWindow()
-    {
-        frame = new JFrame(title);
-        frame.setSize(width, height);
+        frame = new JFrame(gc.getTitle());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
+        frame.setLayout(new BorderLayout());
+        frame.add(canvas, BorderLayout.CENTER);
+        frame.pack();
         frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
         frame.setVisible(true);
 
-        canvas = new Canvas();
-        canvas.setPreferredSize(new Dimension(width, height));
-        canvas.setMaximumSize(new Dimension(width, height));
-        canvas.setMinimumSize(new Dimension(width, height));
+        canvas.createBufferStrategy(2);
+        bs = canvas.getBufferStrategy();
+        g = bs.getDrawGraphics();
+    }
 
-        frame.add(canvas);
-        frame.pack();
+    public void update()
+    {
+        g.drawImage(image,0,0,canvas.getWidth(), canvas.getHeight(), null);
+        bs.show();
+    }
 
+    public BufferedImage getImage() {
+        return image;
     }
 
     public Canvas getCanvas() {
         return canvas;
     }
-
 }
