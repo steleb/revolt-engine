@@ -42,4 +42,8 @@ public class Window {
 
     }
 
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
 }

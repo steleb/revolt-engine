@@ -6,6 +6,7 @@ public class Launcher {
 
     public static void main(String args[])
     {
-        new GameContainer("Revolt-Engine", 500, 500);
+        GameContainer gc = new GameContainer("Revolt-Engine", 500, 500);
+        gc.start();
     }
 }
