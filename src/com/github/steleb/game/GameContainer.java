@@ -2,7 +2,8 @@ package com.github.steleb.game;
 
 import com.github.steleb.engine.graphics.Window;
 
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Color;
 import java.awt.image.BufferStrategy;
 
 public class GameContainer implements Runnable
@@ -44,9 +45,11 @@ public class GameContainer implements Runnable
             return;
         }
         g = bs.getDrawGraphics();
-        // Draw start
 
-        g.fillRect(0,0, width, height);
+        // Clear Screen
+        g.clearRect(0,0, width, height);
+
+        // Draw start
 
         // Draw end
         bs.show();
